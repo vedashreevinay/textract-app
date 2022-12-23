@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  textract-func
+
+  Sample SAM Template for textract application
+
+Parameters:
+  InputBucket:
+    Type: String
+    Description: "The S3 URL of the input bucket where documents will be dropped"
+  OutputBucket: 
+    Type: String
+    Description: The S3 URL of the output bucket where the processed data will be uploaded" 
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 300
+    Tracing: Active
+    MemorySize : 5048
+  Api:
+    TracingEnabled: True
+
+Resources:
+  TextractFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: textractapp/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Policies: 
+        - TextractPolicy : {}
+        - S3WritePolicy:
+            BucketName: !Ref OutputBucket
+        - S3ReadPolicy: 
+            BucketName: !Ref InputBucket 
+      Environment:
+        Variables: 
+          INPUTBUCKET: !Ref InputBucket
+          OUTPUTBUCKET: !Ref OutputBucket
+
+  DocumentProcessingStepFunction: 
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Type: STANDARD
+      DefinitionUri: src/workflow.yaml
+      DefinitionSubstitutions: 
+        InputBucket: !Ref InputBucket
+        OutputBucket: !Ref OutputBucket
+        TextractFunction: !Ref TextractFunction 
+      Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+        - S3ReadPolicy:
+            BucketName: !Ref InputBucket 
+        - S3WritePolicy: 
+            BucketName: !Ref OutputBucket
+        - LambdaInvokePolicy:
+            FunctionName: !Ref TextractFunction
+
+Outputs:
+  TextractFunction:
+    Description: "Textract function ARN"
+    Value: !GetAtt TextractFunction.Arn
+  

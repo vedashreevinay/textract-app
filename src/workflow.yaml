@@ -1,0 +1,30 @@
+Comment: A description of my state machine
+StartAt: Analyze Document
+States:
+  Analyze Document:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke
+    Parameters:
+      FunctionName: 
+        "${TextractFunction}"
+      Payload:
+        Document.$: $.Document
+    Retry:
+      - ErrorEquals:
+          - Lambda.ServiceException
+          - Lambda.AWSLambdaException
+          - Lambda.SdkClientException
+          - Lambda.TooManyRequestsException
+        IntervalSeconds: 2
+        MaxAttempts: 6
+        BackoffRate: 2
+    Next: PutObject
+    ResultPath: $.Result
+  PutObject:
+    Type: Task
+    End: true
+    Parameters:
+      Body.$: $.Result.Payload.body
+      Bucket: ${OutputBucket}
+      Key.$: States.Format('output/{}', $.Document)
+    Resource: arn:aws:states:::aws-sdk:s3:putObject
