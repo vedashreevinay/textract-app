@@ -8,10 +8,10 @@ Description: >
 Parameters:
   InputBucket:
     Type: String
-    Description: "The S3 URL of the input bucket where documents will be dropped"
+    Description: "The S3 bucket name of the input bucket where documents will be dropped"
   OutputBucket: 
     Type: String
-    Description: The S3 URL of the output bucket where the processed data will be uploaded" 
+    Description: The S3 bucket name of the output bucket where the processed data will be uploaded" 
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:

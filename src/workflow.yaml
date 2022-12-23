@@ -1,4 +1,4 @@
-Comment: A description of my state machine
+Comment: A state machine to analyze document and upload results to S3
 StartAt: Analyze Document
 States:
   Analyze Document:

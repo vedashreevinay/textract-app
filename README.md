@@ -2,7 +2,7 @@
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- hello_worldtextractapp - Code for the application's Lambda function that calls the textract API.
+- textractapp - Code for the application's Lambda function that calls the textract API.
 - src - contains the step functions workflow definition
 - events - Invocation events that you can use to invoke the function.
 - tests - Unit tests for the application code.
